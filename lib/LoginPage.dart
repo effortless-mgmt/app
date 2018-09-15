@@ -2,7 +2,7 @@ import "package:flutter/material.dart";
 
 class LoginPage extends StatefulWidget {
   @override
-  State createState() => new LoginPageState();
+  State createState() => LoginPageState();
 }
 
 class LoginPageState extends State<LoginPage>
@@ -14,13 +14,13 @@ class LoginPageState extends State<LoginPage>
   void initState() {
     super.initState();
 
-    _iconAnimationController = new AnimationController(
-      duration: new Duration(milliseconds: 500),
+    _iconAnimationController = AnimationController(
+      duration: Duration(milliseconds: 500),
       vsync: this,
     );
 
-    _iconAnimation = new CurvedAnimation(
-        parent: _iconAnimationController, curve: Curves.easeIn);
+    _iconAnimation =
+        CurvedAnimation(parent: _iconAnimationController, curve: Curves.easeIn);
 
     _iconAnimation.addListener(() => this.setState(() {}));
     _iconAnimationController.forward();
@@ -28,24 +28,24 @@ class LoginPageState extends State<LoginPage>
 
   @override
   Widget build(BuildContext context) {
-    return new Scaffold(
+    return Scaffold(
         backgroundColor: Colors.white,
-        body: new Stack(fit: StackFit.expand, children: <Widget>[
-          new Image(
-            image: new AssetImage("assets/fly3.jpg"),
+        body: Stack(fit: StackFit.expand, children: <Widget>[
+          Image(
+            image: AssetImage("assets/fly3.jpg"),
             fit: BoxFit.cover,
             height: double.infinity, //Force full-screen
             width: double.infinity,
             color: Colors.black54,
             colorBlendMode: BlendMode.srcOver,
           ),
-          new Column(
+          Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              new FlutterLogo(
+              FlutterLogo(
                 size: _iconAnimation.value * 100,
               ),
-              new LoginForm(),
+              LoginForm(),
             ],
           ),
         ]));
@@ -59,12 +59,76 @@ class LoginForm extends StatefulWidget {
 }
 
 // Define a corresponding State class. This class will hold the data related to
-// our Form.
+// the Form.
 class _LoginFormState extends State<LoginForm> {
   // Create a text controller. We will use it to retrieve the current value
   // of the TextField!
   final unController = TextEditingController();
   final pwController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
+
+  String username;
+  String password;
+
+  final ThemeData themeData = ThemeData(
+    brightness: Brightness.dark,
+    inputDecorationTheme: InputDecorationTheme(
+        hintStyle: TextStyle(color: Colors.white, fontSize: 15.0)),
+  );
+
+  TextFormField loginFormField(String s, bool obs) {
+    return TextFormField(
+      controller: obs ? pwController : unController,
+      decoration: InputDecoration(
+        border: OutlineInputBorder(
+            borderSide: BorderSide.none,
+            borderRadius: BorderRadius.all(Radius.circular(10.0))),
+        focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.all(Radius.circular(10.0)),
+            borderSide: BorderSide(color: Colors.white)),
+        fillColor: Colors.white.withOpacity(0.2),
+        filled: true,
+        hintText: s,
+      ),
+      keyboardType: TextInputType.text,
+      obscureText: obs,
+      validator: (value) {
+        if (value.isEmpty) {
+          return obs
+              ? 'Please enter your password'
+              : 'Please enter your username';
+        }
+      },
+    );
+  }
+
+  ButtonTheme loginButton() {
+    return ButtonTheme(
+        minWidth: 300.0,
+        height: 50.0,
+        child: RaisedButton(
+            color: Colors.green.withOpacity(0.8),
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(5.0)),
+            textColor: Colors.white,
+            child: Text("Login"),
+            onPressed: () {
+              if (_formKey.currentState.validate()) {
+                this.username = unController.text;
+                this.password = pwController.text;
+                showDialog(
+                    context: context,
+                    builder: (context) {
+                      return AlertDialog(
+                        content: Text("Username: " +
+                            this.username +
+                            "\nPassword: " +
+                            this.password),
+                      );
+                    });
+              }
+            }));
+  }
 
   @override
   void dispose() {
@@ -76,74 +140,28 @@ class _LoginFormState extends State<LoginForm> {
 
   @override
   Widget build(BuildContext context) {
-    return new Form(
-      child: new Theme(
-        data: new ThemeData(
-            brightness: Brightness.dark,
-            inputDecorationTheme: new InputDecorationTheme(
-                hintStyle: new TextStyle(color: Colors.white, fontSize: 15.0))),
+    return Form(
+      key: _formKey,
+      child: Theme(
+        data: themeData,
         child: Container(
-          padding: const EdgeInsets.all(45.0),
-          child: new Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
+          padding: const EdgeInsets.only(left: 40.0, right: 40.0, top: 45.0),
+          child: Column(
+            // crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
-              new Container(
-                height: 36.0,
-                child: new TextFormField(
-                  controller: unController,
-                  decoration: new InputDecoration(
-                    border: new OutlineInputBorder(
-                        borderSide: BorderSide.none,
-                        borderRadius:
-                            new BorderRadius.all(Radius.circular(25.0))),
-                    fillColor: Colors.white.withOpacity(0.2),
-                    filled: true,
-                    hintText: "Enter Username",
-                  ),
-                  keyboardType: TextInputType.text,
-                ),
+              Container(
+                  height: 30.0, child: loginFormField("Enter Username", false)),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 35.0),
               ),
-              new Padding(
-                padding: const EdgeInsets.only(top: 30.0),
+              Container(
+                height: 30.0,
+                child: loginFormField("Enter Password", true),
               ),
-              new Container(
-                height: 36.0,
-                child: new TextFormField(
-                  controller: pwController,
-                  decoration: new InputDecoration(
-                    border: new OutlineInputBorder(
-                        borderSide: BorderSide.none,
-                        borderRadius:
-                            new BorderRadius.all(Radius.circular(25.0))),
-                    fillColor: Colors.white.withOpacity(0.2),
-                    filled: true,
-                    hintText: "Enter Password",
-                  ),
-                  keyboardType: TextInputType.text,
-                  obscureText: true,
-                ),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 35.0),
               ),
-              new Padding(
-                padding: const EdgeInsets.only(top: 30.0),
-              ),
-              new RaisedButton(
-                  color: Colors.white,
-                  shape: new RoundedRectangleBorder(
-                      borderRadius: new BorderRadius.circular(15.0)),
-                  textColor: Colors.black,
-                  child: new Text("Login"),
-                  onPressed: () {
-                    return showDialog(
-                        context: context,
-                        builder: (context) {
-                          return AlertDialog(
-                            content: Text("Username: " +
-                                unController.text +
-                                "\nPassword: " +
-                                pwController.text),
-                          );
-                        });
-                  }),
+              loginButton(),
             ],
           ),
         ),
