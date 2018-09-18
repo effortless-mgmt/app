@@ -1,4 +1,8 @@
+import 'dart:async';
+
 import "package:flutter/material.dart";
+import 'package:flutter_app/APIController.dart';
+import 'package:flutter_app/UserPage.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -112,20 +116,28 @@ class _LoginFormState extends State<LoginForm> {
                 borderRadius: BorderRadius.circular(5.0)),
             textColor: Colors.white,
             child: Text("Login"),
-            onPressed: () {
+            onPressed: () async {
               if (_formKey.currentState.validate()) {
                 this.username = unController.text;
                 this.password = pwController.text;
-                showDialog(
-                    context: context,
-                    builder: (context) {
-                      return AlertDialog(
-                        content: Text("Username: " +
-                            this.username +
-                            "\nPassword: " +
-                            this.password),
-                      );
-                    });
+                // if (await APIController.verifyUser(username, password)) {
+                //   showDialog(
+                //       context: context,
+                //       builder: (context) {
+                //         return AlertDialog(
+                //           content: Text("Logged in as " + username),
+                //         );
+                //       });
+                // } else {
+                //   showDialog(
+                //       context: context,
+                //       builder: (context) {
+                //         return AlertDialog(
+                //           content: Text("Username and/or password incorrect."),
+                //         );
+                //       });
+                // }
+                Navigator.push(context, UserPage(username));
               }
             }));
   }
